@@ -62,19 +62,30 @@ InitOpenGL(void)
 
 void PutPixel(int x, int y, byte r, byte g, byte b)
 {
+    
     if (x < 0 || y < 0 || x >= framebuffer_width || y >= framebuffer_height)
     {
         printf("PutPixel(): x, y coordinates (%d, %d) outside of visible area!\n",
                 x, y);
         return;
     }
-
-    // The pixels in framebuffer[] are layed out sequentially,
-    // with the R, G and B values one after the other, e.g
-    // RGBRGBRGB...
-    framebuffer[3*(framebuffer_width*y+x)] = r;
-    framebuffer[3*(framebuffer_width*y+x)+1] = g;
-    framebuffer[3*(framebuffer_width*y+x)+2] = b;
+    // check the debug mode
+    if (color_by_putpixel_count) {
+        
+        // check the current pixel value
+        if (framebuffer[3*(framebuffer_width*y+x)] == 0) {
+            framebuffer[3*(framebuffer_width*y+x)] = 128;
+        } else {
+            framebuffer[3*(framebuffer_width*y+x)] = 255;
+        }
+    } else {
+        // The pixels in framebuffer[] are layed out sequentially,
+        // with the R, G and B values one after the other, e.g
+        // RGBRGBRGB...
+        framebuffer[3*(framebuffer_width*y+x)] = r;
+        framebuffer[3*(framebuffer_width*y+x)+1] = g;
+        framebuffer[3*(framebuffer_width*y+x)+2] = b;
+    }
 }
 
 void
