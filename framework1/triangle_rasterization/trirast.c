@@ -43,14 +43,12 @@ draw_triangle(float x0, float y0, float x1, float y1, float x2, float y2,
     // get the maximum and minimum values of the triangle (no point can be outside this area)
     int xminimum, xmaximum, yminimum, ymaximum, x, y; 
     float alpha, beta, gamma;
-    xminimum = minimum(minimum(x0, x1), minimum(x0, x2));
     xmaximum = maximum(maximum(x0, x1), maximum(x0, x2));
-    yminimum = minimum(minimum(y0, y1), minimum(y0, y2));
     ymaximum = maximum(maximum(y0, y1), maximum(y0, y2));
 
     // loop through the point 
-    for(y = yminimum; y <= ymaximum; y++) {
-        for(x = xminimum; x <= xmaximum; x++) { 
+    for(y = 0; y <= ymaximum; y++) {
+        for(x = 0; x <= xmaximum; x++) { 
             
             // calculate alpha, beta and gamma
             alpha = ((y1 - y2) * x + (x2 - x1) * y + x1*y2 - x2*y1)/((y1 - y2) * x0 + (x2 - x1) * y0 + x1*y2 - x2*y1);
