@@ -4,11 +4,11 @@
  * Description ..... Midpoint Line Algorithm
  * Created by ...... Jurgen Sturm
  *
- * Student name ....
- * Student email ...
- * Collegekaart ....
- * Date ............
- * Comments ........
+ * Student name .... Kaj Meijer                 Lotte Philippus
+ * Student email ... k.d.meijer17@gmail.com     lotte.philippus@gmail.com
+ * Collegekaart .... 10509534                   11291168
+ * Date ............ 2-11-2018
+ * Comments ........ None
  *
  *
  * (always fill in these fields before submitting!!)
