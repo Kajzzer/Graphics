@@ -8,6 +8,21 @@
  * Student numbers:
  *
  */
+ 
+/* Q1.
+ *
+ * First x, then y and then z in mode 1. 
+ * In mode 2 it's, y, x and then z.
+ *
+ */
+
+/* Q2.
+ *
+ * The most right teapot can only rotate around the z-axis. It lost one transformation freedom.
+ * Because of the 90 degree rotation in the y-axis, the x-axis and z-axis overlap. 
+ * Rotation over the x-axis and z-axis cause the same transformation.
+ *
+ */
 
 var gl;
 var prog;
@@ -198,6 +213,16 @@ function DrawTeapots() {
     // Translate Teapot to 0.0, 0.0, 0.0 (Used to illustrate how to translate).
     m4.translate(mvMat, 0.0, 0.0, 0.0, mvMat);
     DrawRotatedTeapot(x_rotation, 0.0, z_rotation);
+    
+	mvMat = m4.identity();
+    // Translate Teapot to 0.0, 0.0, 0.0 (Used to illustrate how to translate).
+    m4.translate(mvMat, 15.0, 0.0, 0.0, mvMat);
+    DrawRotatedTeapot(x_rotation, 45.0, z_rotation);
+    
+	mvMat = m4.identity();
+    // Translate Teapot to 0.0, 0.0, 0.0 (Used to illustrate how to translate).
+    m4.translate(mvMat, 30.0, 0.0, 0.0, mvMat);
+    DrawRotatedTeapot(x_rotation, 90.0, z_rotation);
 }
 
 function GimbalDrawGLScene() {
