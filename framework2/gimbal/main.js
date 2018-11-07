@@ -4,14 +4,17 @@
  * Created by ...... Daan Kruis
  * Original by ..... Paul Melis
  *
- * Student names:
- * Student numbers:
+ * Student name .... Kaj Meijer                 Lotte Philippus
+ * Student email ... k.d.meijer17@gmail.com     lotte.philippus@gmail.com
+ * Collegekaart .... 10509534                   11291168
+ * Date ............ 7-11-2018
+ * Comments ........ None
  *
  */
- 
+
 /* Q1.
  *
- * First x, then y and then z in mode 1. 
+ * First x, then y and then z in mode 1.
  * In mode 2 it's, y, x and then z.
  *
  */
@@ -19,7 +22,7 @@
 /* Q2.
  *
  * The most right teapot can only rotate around the z-axis. It lost one transformation freedom.
- * Because of the 90 degree rotation in the y-axis, the x-axis and z-axis overlap. 
+ * Because of the 90 degree rotation in the y-axis, the x-axis and z-axis overlap.
  * Rotation over the x-axis and z-axis cause the same transformation.
  *
  */
@@ -213,12 +216,12 @@ function DrawTeapots() {
     // Translate Teapot to 0.0, 0.0, 0.0 (Used to illustrate how to translate).
     m4.translate(mvMat, 0.0, 0.0, 0.0, mvMat);
     DrawRotatedTeapot(x_rotation, 0.0, z_rotation);
-    
+
 	mvMat = m4.identity();
     // Translate Teapot to 0.0, 0.0, 0.0 (Used to illustrate how to translate).
     m4.translate(mvMat, 15.0, 0.0, 0.0, mvMat);
     DrawRotatedTeapot(x_rotation, 45.0, z_rotation);
-    
+
 	mvMat = m4.identity();
     // Translate Teapot to 0.0, 0.0, 0.0 (Used to illustrate how to translate).
     m4.translate(mvMat, 30.0, 0.0, 0.0, mvMat);

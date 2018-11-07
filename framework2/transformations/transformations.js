@@ -1,7 +1,9 @@
 /*
- * Student names:
- * Student numbers:
- *
+ * Student name .... Kaj Meijer                 Lotte Philippus
+ * Student email ... k.d.meijer17@gmail.com     lotte.philippus@gmail.com
+ * Collegekaart .... 10509534                   11291168
+ * Date ............ 7-11-2018
+ * Comments ........ None
  */
 
 function myTranslate(x, y, z) {
@@ -34,12 +36,12 @@ function myRotate(angle, x, y, z) {
     //
     // 1. Create the orthonormal basis
     //
-    
+
     var w = [0, 0, 0];
     var t = [0, 0, 0];
     var u = [0, 0, 0];
     var v = [0, 0, 0];
-    
+
 	var w_length = Math.sqrt((x*x) + (y*y) + (z*z));
 
     // First axis of the basis
@@ -48,7 +50,7 @@ function myRotate(angle, x, y, z) {
     w[2] = z/w_length;
 
     // Compute the value of t, based on w
-	
+
 	// copy w into t
     t[0] = w[0];
     t[1] = w[1];
@@ -64,7 +66,7 @@ function myRotate(angle, x, y, z) {
         t[0] = 1.0;
     else if(ab1 < ab2)
         t[1] = 1.0;
-    else 
+    else
         t[2] = 1.0;
 
     // Compute u = t x w
@@ -86,7 +88,7 @@ function myRotate(angle, x, y, z) {
     v[0] = (w[1]*u[2]) - (w[2]*u[1]);
     v[1] = (w[2]*u[0]) - (w[0]*u[2]);
     v[2] = (w[0]*u[1]) - (w[1]*u[0]);
-    
+
     //
     // 2. Set up the three matrices making up the rotation
     //
@@ -95,7 +97,7 @@ function myRotate(angle, x, y, z) {
 			v[0], v[1], v[2], 0.0,
 			w[0], w[1], w[2], 0.0,
 			0.0, 0.0, 0.0, 1.0
-            ]; 
+            ];
 
     var B = [
 			Math.cos(angle), Math.sin(angle), 0.0, 0.0,
