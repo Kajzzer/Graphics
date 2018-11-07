@@ -1,6 +1,6 @@
 /* Computer Graphics, Assignment 2, Translations, Rotations and Scaling
  *
- * Description ..... Draw teapots that can be interactively rotated with the mouse
+ * Description ..... Draw teapots that can be interactively rotated with the mouse (NOTE: NOPE! Bad copy pasta!)
  * Created by ...... Daan Kruis
  * Original by ..... Jurgen Sturm
  *
