@@ -88,26 +88,36 @@ evaluate_bezier_curve(float *x, float *y, control_point p[], int num_points, flo
 void
 draw_bezier_curve(int num_segments, control_point p[], int num_points)
 {
+	// the buffer
     GLuint buffer[1];
 
+	// the points of the curve
 	GLfloat points[2*num_segments];
 	
+	// the size of the steps
 	float du = 1.0 / num_segments;
+    
+    // the x and y value of a point
     float x, y;
     
+    // the index of a point
     int i = 0;
+    
     /* Write your own code to create and fill the array here. */
 	for (float u = 0.0; u <= 1.0; u += du) {
+		
         evaluate_bezier_curve(&x, &y, p, num_points, u);
         points[i] = x;
         points[i+1] = y;
+        
+        // increment the index
         i += 2;
     }
 
     // This creates the VBO and binds an array to it.
     glGenBuffers(1, buffer);
     glBindBuffer(GL_ARRAY_BUFFER, *buffer);
-    glBufferData(GL_ARRAY_BUFFER, num_segments*sizeof(GLfloat)*2,
+    glBufferData(GL_ARRAY_BUFFER, sizeof(points),
                  points, GL_STATIC_DRAW);
 
     // This tells OpenGL to draw what is in the buffer as a Line Strip.
@@ -130,6 +140,7 @@ intersect_cubic_bezier_curve(float *y, control_point p[], float x)
 {
 	float dx, dy, u, du;
 
+	// a small value for the step size
 	du = 0.001;
 
 	if (x < p[0].x && x > p[3].x) {
