@@ -26,11 +26,48 @@
  * respectively.
  */
 
+// calculates the factorial value of n
+long factorial(int n)
+{
+	int i;
+	long fac = 1;
+
+	for(i=1;i<=n; i++)
+	{
+		fac *= i;
+	}
+
+	return fac;
+}
+
+// calculate the binomial distribution
+float binomial_distribution(int n, int k) 
+{
+	return factorial(n)/(factorial(k)*factorial(n-k));
+}
+
 void
 evaluate_bezier_curve(float *x, float *y, control_point p[], int num_points, float u)
 {
+	// reset the values of x and y
     *x = 0.0;
     *y = 0.0;
+    
+    // get the total number of points (-1 for the index)
+    int n = num_points-1;
+
+	float temp;
+	
+	// calculate the x and y values of 
+	for(int i = 0; i <= n; i++)
+	{
+		// store the calculation we need for both points
+		temp = binomial_distribution(n,i)*pow(u,i)*pow(1-u,n-i);
+		
+		// calculate the x and y value compared to the controle points
+		*x += temp * (p[i].x);
+		*y += temp * (p[i].y);
+	}
 }
 
 /* Draw a Bezier curve defined by the control points in p[], which
@@ -53,19 +90,30 @@ draw_bezier_curve(int num_segments, control_point p[], int num_points)
 {
     GLuint buffer[1];
 
+	GLfloat points[2*num_segments];
+	
+	float du = 1.0 / num_segments;
+    float x, y;
+    
+    int i = 0;
     /* Write your own code to create and fill the array here. */
-
+	for (float u = 0.0; u <= 1.0; u += du) {
+        evaluate_bezier_curve(&x, &y, p, num_points, u);
+        points[i] = x;
+        points[i+1] = y;
+        i += 2;
+    }
 
     // This creates the VBO and binds an array to it.
     glGenBuffers(1, buffer);
     glBindBuffer(GL_ARRAY_BUFFER, *buffer);
-    glBufferData(GL_ARRAY_BUFFER, 0 /* Fill in the right size here*/,
-                 NULL /*Fill in the pointer to the array*/, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, num_segments*sizeof(GLfloat)*2,
+                 points, GL_STATIC_DRAW);
 
     // This tells OpenGL to draw what is in the buffer as a Line Strip.
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
-    glDrawArrays(GL_LINE_STRIP, 0, 0/* Fill in the number of steps to be drawn*/);
+    glDrawArrays(GL_LINE_STRIP, 0, num_segments);
     glDisableClientState(GL_VERTEX_ARRAY);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, buffer);
@@ -80,5 +128,23 @@ draw_bezier_curve(int num_segments, control_point p[], int num_points)
 int
 intersect_cubic_bezier_curve(float *y, control_point p[], float x)
 {
+	float dx, dy, u, du;
+
+	du = 0.001;
+
+	if (x < p[0].x && x > p[3].x) {
+        return 0;
+    }
+
+	for(u = 0.0; u < 1.0; u+= du)
+	{
+		evaluate_bezier_curve(&dx, &dy, p, 4, u);
+		if(fabs(dx-x) < du)
+		{
+			*y = dy;
+			return 1;
+		}
+	}
+	
     return 0;
 }

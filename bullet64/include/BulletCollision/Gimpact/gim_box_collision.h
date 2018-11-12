@@ -97,6 +97,8 @@ email: projectileman@yahoo.com
 //	return test_cross_edge_box(edge,absolute_edge,pointa,pointb,extend,1,0,0,1);
 //}
 
+#ifndef TEST_CROSS_EDGE_BOX_MCR
+
 #define TEST_CROSS_EDGE_BOX_MCR(edge,absolute_edge,pointa,pointb,_extend,i_dir_0,i_dir_1,i_comp_0,i_comp_1)\
 {\
 	const btScalar dir0 = -edge[i_dir_0];\
@@ -113,6 +115,7 @@ email: projectileman@yahoo.com
 	if(pmin>rad || -rad>pmax) return false;\
 }\
 
+#endif
 
 #define TEST_CROSS_EDGE_BOX_X_AXIS_MCR(edge,absolute_edge,pointa,pointb,_extend)\
 {\
@@ -186,14 +189,13 @@ public:
 
 	SIMD_FORCE_INLINE btVector3 transform(const btVector3 & point)
 	{
-		return btVector3(m_R1to0[0].dot(point) + m_T1to0.x(),
-			m_R1to0[1].dot(point) + m_T1to0.y(),
-			m_R1to0[2].dot(point) + m_T1to0.z());
+        return point.dot3(m_R1to0[0], m_R1to0[1], m_R1to0[2]) + m_T1to0;
 	}
 };
 
-
+#ifndef BOX_PLANE_EPSILON
 #define BOX_PLANE_EPSILON 0.000001f
+#endif
 
 //! Axis aligned box
 class GIM_AABB
@@ -332,10 +334,10 @@ public:
 		// Compute new center
 		center = trans(center);
 
-		btVector3 textends(extends.dot(trans.getBasis().getRow(0).absolute()),
- 				 extends.dot(trans.getBasis().getRow(1).absolute()),
-				 extends.dot(trans.getBasis().getRow(2).absolute()));
-
+        btVector3 textends = extends.dot3(trans.getBasis().getRow(0).absolute(), 
+                                          trans.getBasis().getRow(1).absolute(), 
+                                          trans.getBasis().getRow(2).absolute());
+        
 		m_min = center - textends;
 		m_max = center + textends;
 	}
@@ -573,7 +575,7 @@ public:
 	}
 };
 
-
+#ifndef BT_BOX_COLLISION_H_INCLUDED
 //! Compairison of transformation objects
 SIMD_FORCE_INLINE bool btCompareTransformsEqual(const btTransform & t1,const btTransform & t2)
 {
@@ -584,6 +586,7 @@ SIMD_FORCE_INLINE bool btCompareTransformsEqual(const btTransform & t1,const btT
 	if(!(t1.getBasis().getRow(2) == t2.getBasis().getRow(2)) ) return false;
 	return true;
 }
+#endif
 
 
 

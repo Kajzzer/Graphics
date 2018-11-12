@@ -228,7 +228,7 @@ public:
 	inline void push_back_memcpy(const T & obj)
 	{
 	    this->growingCheck();
-	    irr_simd_memcpy(&m_data[m_size],&obj,sizeof(T));
+	    gim_simd_memcpy(&m_data[m_size],&obj,sizeof(T));
 	    m_size++;
 	}
 
@@ -285,18 +285,16 @@ public:
 	    m_data[index] = obj;
 	}
 
-	inline void resize(GUINT size, bool call_constructor = true)
+	inline void resize(GUINT size, bool call_constructor = true, const T& fillData=T())
 	{
-
 	    if(size>m_size)
 	    {
             reserve(size);
             if(call_constructor)
             {
-            	T obj;
                 while(m_size<size)
                 {
-                    m_data[m_size] = obj;
+                    m_data[m_size] = fillData;
                     m_size++;
                 }
             }
