@@ -91,8 +91,11 @@ draw_bezier_curve(int num_segments, control_point p[], int num_points)
 	// the buffer
     GLuint buffer[1];
 
+	int max_points = num_segments+1;
+
 	// the points of the curve
-	GLfloat points[2*num_segments];
+	// we store them as x0, y0, x1, y1, ...,xn, yn
+	GLfloat points[2*max_points];
 	
 	// the size of the steps
 	float du = 1.0 / num_segments;
@@ -106,6 +109,7 @@ draw_bezier_curve(int num_segments, control_point p[], int num_points)
     /* Write your own code to create and fill the array here. */
 	for (float u = 0.0; u <= 1.0; u += du) {
 		
+		// calculate the curve and store the x and y values
         evaluate_bezier_curve(&x, &y, p, num_points, u);
         points[i] = x;
         points[i+1] = y;
@@ -123,7 +127,7 @@ draw_bezier_curve(int num_segments, control_point p[], int num_points)
     // This tells OpenGL to draw what is in the buffer as a Line Strip.
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
-    glDrawArrays(GL_LINE_STRIP, 0, num_segments);
+    glDrawArrays(GL_LINE_STRIP, 0, max_points);
     glDisableClientState(GL_VERTEX_ARRAY);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, buffer);
@@ -142,14 +146,19 @@ intersect_cubic_bezier_curve(float *y, control_point p[], float x)
 
 	// a small value for the step size
 	du = 0.001;
-
+	
+	// check if the x value is between the start and end point
 	if (x < p[0].x && x > p[3].x) {
         return 0;
     }
 
+	// evaluate for every step
 	for(u = 0.0; u < 1.0; u+= du)
 	{
+		// calculate the curve for the current step
 		evaluate_bezier_curve(&dx, &dy, p, 4, u);
+		
+		// change y if the difference is smaller than the step size
 		if(fabs(dx-x) < du)
 		{
 			*y = dy;
