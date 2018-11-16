@@ -4,11 +4,11 @@
  * Date ............ 22.07.2009
  * Created by ...... Paul Melis
  *
- * Student name ....
- * Student email ...
- * Collegekaart ....
- * Date ............
- * Comments ........
+ * Student name .... Kaj Meijer                 Lotte Philippus
+ * Student email ... k.d.meijer17@gmail.com     lotte.philippus@gmail.com
+ * Collegekaart .... 10509534                   11291168
+ * Date ............ 2-11-2018
+ * Comments ........ None
  *
  *
  * (always fill in these fields before submitting!!)
