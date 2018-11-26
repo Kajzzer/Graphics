@@ -37,20 +37,23 @@ vec3
 shade_matte(intersection_point ip)
 {
 	vec3 l;
-	
-	// get the vector to the light source
-	l = v3_normalize(v3_subtract(ip.p, scene_lights->position));
-	
-	// scene_ambient_light
-	
-	// get the light and ray angle of the ip
 	float light_angle, ray_angle,L;
-	light_angle = v3_dotprod(l, ip.n);
-	ray_angle = v3_dotprod(ip.i, ip.n);
+	L = 0;
+	float small = 0.00003;
+	vec3 offset;
+	offset = v3_multiply(ip.n, small);
 	
-	L = scene_lights->intensity*fmax(0, light_angle);
-	
-	
+	for (int i = 0; i < scene_num_lights;i++)
+	{
+		// get the vector to the light source
+		l = v3_normalize(v3_subtract(scene_lights[i].position,ip.p));
+		
+		// get the light and ray angle of the ip
+		light_angle = v3_dotprod(l, ip.n);
+		
+		// add the intensity of the current light source
+		if(!shadow_check(v3_add(ip.p,offset), l)) L += scene_lights[i].intensity*fmax(0, light_angle);
+	}
     return v3_create(L, L, L);
 }
 
