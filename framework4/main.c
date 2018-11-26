@@ -385,9 +385,9 @@ setup_camera(void)
 void
 ray_trace(void)
 {
-    vec3    forward_vector, right_vector, up_vector;
+    vec3    forward_vector, right_vector, up_vector, direction;
     int     i, j;
-    float   image_plane_width, image_plane_height;
+    float   image_plane_width, image_plane_height, u, v, h, w;
     vec3    color;
     char    buf[128];
 
@@ -409,22 +409,32 @@ ray_trace(void)
     // Compute size of image plane from the chosen field-of-view
     // and image aspect ratio. This is the size of the plane at distance
     // of one unit from the camera position.
-    image_plane_height = 2.0 * tan(0.5*VFOV/180*M_PI);
+    image_plane_height = 2.0 * tan(0.5 * VFOV / 180 * M_PI);
     image_plane_width = image_plane_height * (1.0 * framebuffer_width / framebuffer_height);
 
-    // ...
-    // ...
-    // ...
+	// YOUR CODE HERE
 
+	// calculate the width and height of a pixel
+    w = image_plane_width / framebuffer_width;
+    h = image_plane_height / framebuffer_height;
+	
     // Loop over all pixels in the framebuffer
     for (j = 0; j < framebuffer_height; j++)
     {
         for (i = 0; i < framebuffer_width; i++)
         {
-            // ...
-            // ...
-            // ...
-
+			// YEET YOUR CODE IN HERE
+			
+			// calculate u and v
+            u = (-image_plane_width - w) / 2 + i * w;
+            v = (-image_plane_height - h) / 2 + j * h;
+            
+			// get the ray direction (distance is unit 1)
+			// ray origin is the scene_camera_position
+			direction = v3_add(forward_vector, v3_add(v3_multiply(right_vector,u), v3_multiply(up_vector,v)));
+			
+			color = ray_color(0, scene_camera_position, direction);
+			
             // Output pixel color
             put_pixel(i, j, color.x, color.y, color.z);
         }

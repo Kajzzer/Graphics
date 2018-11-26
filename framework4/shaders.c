@@ -36,19 +36,47 @@ shade_constant(intersection_point ip)
 vec3
 shade_matte(intersection_point ip)
 {
-    return v3_create(1, 0, 0);
+	vec3 l;
+	
+	// get the vector to the light source
+	l = v3_normalize(v3_subtract(ip.p, scene_lights->position));
+	
+	// scene_ambient_light
+	
+	// get the light and ray angle of the ip
+	float light_angle, ray_angle,L;
+	light_angle = v3_dotprod(l, ip.n);
+	ray_angle = v3_dotprod(ip.i, ip.n);
+	
+	L = scene_lights->intensity*fmax(0, light_angle);
+	
+	
+    return v3_create(L, L, L);
 }
 
 vec3
 shade_blinn_phong(intersection_point ip)
 {
-    return v3_create(1, 0, 0);
+	
+	vec3 l;
+	
+	// get the vector to the light source
+	l = v3_subtract(ip.p, scene_lights->position);
+	
+	// scene_ambient_light
+	
+	// get the light and ray angle of the ip
+	float light_angle, ray_angle;
+	light_angle = v3_dotprod(l, ip.n);
+	ray_angle = v3_dotprod(ip.i, ip.n);
+	
+    return v3_create(0, 0, 1);
 }
 
 vec3
 shade_reflection(intersection_point ip)
 {
-    return v3_create(1, 0, 0);
+    return v3_create(0, 0.5, 0.5);
 }
 
 // Returns the shaded color for the given point to shade.
