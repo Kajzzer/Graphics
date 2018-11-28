@@ -412,31 +412,74 @@ ray_trace(void)
     image_plane_height = 2.0 * tan(0.5 * VFOV / 180 * M_PI);
     image_plane_width = image_plane_height * (1.0 * framebuffer_width / framebuffer_height);
 
-	// YOUR CODE HERE
-
 	// calculate the width and height of a pixel
     w = image_plane_width / framebuffer_width;
     h = image_plane_height / framebuffer_height;
 	
-    // Loop over all pixels in the framebuffer
-    for (j = 0; j < framebuffer_height; j++)
-    {
-        for (i = 0; i < framebuffer_width; i++)
-        {
-			// YEET YOUR CODE IN HERE
-			
-			// calculate u and v
-            u = (-image_plane_width - w) / 2 + i * w;
-            v = (-image_plane_height - h) / 2 + j * h;
-            
-			// get the ray direction (distance is unit 1)
-			// ray origin is the scene_camera_position
-			direction = v3_add(forward_vector, v3_add(v3_multiply(right_vector,u), v3_multiply(up_vector,v)));
-			
-			color = ray_color(0, scene_camera_position, direction);
-			
-            // Output pixel color
-            put_pixel(i, j, color.x, color.y, color.z);
+	// check for antialiasing
+	if(do_antialiasing)
+	{					
+		// extra floats needed for AA
+		float a, b, aass;
+		
+		// we need the AntiAliasing Step Size (1/steps)
+		aass = 0.5;
+		
+		// Loop over all pixels in the framebuffer
+		for (j = 0; j < framebuffer_height; j++)
+		{
+			for (i = 0; i < framebuffer_width; i++)
+			{				
+				// reset the color
+				color = v3_create(0,0,0);
+				
+				// loop over the subpixels
+				for(b = j; b < j+1; b += aass)
+				{
+					for(a = i; a < i+1; a += aass)
+					{
+						// calculate u and v
+						u = (-image_plane_width - w) / 2 + a * w;
+						v = (-image_plane_height - h) / 2 + b * h;
+						
+						// get the ray direction (distance is unit 1)
+						// ray origin is the scene_camera_position
+						direction = v3_add(forward_vector, v3_add(v3_multiply(right_vector,u), v3_multiply(up_vector,v)));
+						
+						// add the color of the subpixel to the total
+						color = v3_add(color,ray_color(0, scene_camera_position, direction));
+					}
+				}
+				
+				// divide by the number of subpixels
+				color = v3_multiply(color, aass*aass);
+				
+				// output pixel color
+				put_pixel(i, j, color.x, color.y, color.z);
+			}
+		}
+	} 
+	else
+	{
+		// Loop over all pixels in the framebuffer
+		for (j = 0; j < framebuffer_height; j++)
+		{
+			for (i = 0; i < framebuffer_width; i++)
+			{	
+				// calculate u and v
+				u = (-image_plane_width - w) / 2 + i * w;
+				v = (-image_plane_height - h) / 2 + j * h;
+				
+				// get the ray direction (distance is unit 1)
+				// ray origin is the scene_camera_position
+				direction = v3_add(forward_vector, v3_add(v3_multiply(right_vector,u), v3_multiply(up_vector,v)));
+				
+				// get the color
+				color = ray_color(0, scene_camera_position, direction);
+				
+				// output pixel color
+				put_pixel(i, j, color.x, color.y, color.z);
+			}
         }
 
         sprintf(buf, "Ray-tracing ::: %.0f%% done", 100.0*j/framebuffer_height);
