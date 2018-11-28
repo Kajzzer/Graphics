@@ -1,10 +1,10 @@
 /* Computer Graphics and Game Technology, Assignment Ray-tracing
  *
- * Student name ....
- * Student email ...
- * Collegekaart ....
- * Date ............
- * Comments ........
+ * Student name .... Kaj Meijer                 Lotte Philippus
+ * Student email ... k.d.meijer17@gmail.com     lotte.philippus@gmail.com
+ * Collegekaart .... 10509534                   11291168
+ * Date ............ 30-11-2018
+ * Comments ........ None
  *
  *
  * (always fill in these fields before submitting!!)
@@ -166,6 +166,66 @@ ray_intersects_sphere(intersection_point* ip, sphere sph,
     return 1;
 }
 
+// Checks if the node is an inner node or a leaf node. If it's an inner node,
+// it splits the node and checks the children.
+//
+// Returns 1 if there is an intersection. The fields of 'ip' will be
+// set to the relevant values. The intersection returned
+// will be the one closest to the ray origin.
+//
+// Returns 0 if there are no intersections
+
+static int
+check_node(bvh_node *node, float t_nearest, intersection_point* ip, vec3 ray_origin, vec3 ray_direction)
+{
+    int num_triangles, hit;
+    float *t_min, *t_max;
+    triangle *tri;
+    bvh_node *lnode, *rnode;
+    intersection_point ip2;
+
+    // Check if the node is a leaf node
+    if (node->is_leaf)
+    {
+        num_triangles = leaf_node_num_triangles(node);
+        tri = leaf_node_triangles(node);
+
+        // Go over all the triangles in the bounding box and check for
+        // intersections. Set the intersection point to the intersection
+        // with the nearest triangle.
+        for (int t = 0; t < num_triangles; t++)
+        {
+            if (ray_intersects_triangle(ip, tri[t], ray_origin, ray_direction))
+            {
+                if (ip2.t < t_nearest)
+                {
+                    *ip = ip2;
+                    t_nearest = ip2.t;
+                    hit = 1;
+                }
+            }
+        }
+    } else
+    {
+        // split the inner node into a left and right node
+        lnode = inner_node_left_child(node);
+        rnode = inner_node_right_child(node);
+
+        // check the left node
+        if (bbox_intersect(t_min, t_max, lnode->bbox, ray_origin, ray_direction, 0, C_INFINITY))
+        {
+            check_node(lnode, t_nearest, ip, ray_origin, ray_direction);
+        }
+
+        // check the right node
+        if (bbox_intersect(t_min, t_max, rnode->bbox, ray_origin, ray_direction, 0, C_INFINITY))
+        {
+            check_node(rnode, t_nearest, ip, ray_origin, ray_direction);
+        }
+    }
+    return hit;
+}
+
 // Checks for an intersection of the given ray with the triangles
 // stored in the BVH.
 //
@@ -179,7 +239,22 @@ static int
 find_first_intersected_bvh_triangle(intersection_point* ip,
     vec3 ray_origin, vec3 ray_direction)
 {
-    return 0;
+    // TODO: add optimizations from note 3
+    int hit;
+    float *t_min, *t_max, t_nearest;
+    bvh_node *node;
+
+    node = bvh_root;
+    t_nearest = C_INFINITY;
+    hit = 0;
+
+    // Check if the ray intersects with the root node
+    if (bbox_intersect(t_min, t_max, node->bbox, ray_origin, ray_direction, 0, C_INFINITY))
+    {
+        // If it intersects, check the node
+        hit = check_node(node, t_nearest, ip, ray_origin, ray_direction);
+    }
+    return hit;
 }
 
 // Returns the nearest hit of the given ray with objects in the scene
@@ -288,4 +363,3 @@ shadow_check(vec3 ray_origin, vec3 ray_direction)
 
     return 0;
 }
-
