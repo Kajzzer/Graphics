@@ -37,6 +37,9 @@ unsigned long long num_bboxes_tested = 0;
 
 static int  find_first_intersected_bvh_triangle(intersection_point* ip,
                 vec3 ray_origin, vec3 ray_direction);
+                
+static int	check_node(float *t_min, float *t_max, bvh_node *node, float *t_nearest, 
+				intersection_point* ip, vec3 ray_origin, vec3 ray_direction, int hit);
 
 // Checks if the given triangle is intersected by ray with given
 // origin and direction.
@@ -176,10 +179,10 @@ ray_intersects_sphere(intersection_point* ip, sphere sph,
 // Returns 0 if there are no intersections
 
 static int
-check_node(bvh_node *node, float t_nearest, intersection_point* ip, vec3 ray_origin, vec3 ray_direction)
+check_node(float *t_min, float *t_max, bvh_node *node, float *t_nearest, intersection_point* ip, vec3 ray_origin, vec3 ray_direction, int hit)
 {
-    int num_triangles, hit;
-    float *t_min, *t_max;
+	float tmin, tmax;
+    int num_triangles;
     triangle *tri;
     bvh_node *lnode, *rnode;
     intersection_point ip2;
@@ -189,23 +192,24 @@ check_node(bvh_node *node, float t_nearest, intersection_point* ip, vec3 ray_ori
     {
         num_triangles = leaf_node_num_triangles(node);
         tri = leaf_node_triangles(node);
-
+        
         // Go over all the triangles in the bounding box and check for
         // intersections. Set the intersection point to the intersection
         // with the nearest triangle.
         for (int t = 0; t < num_triangles; t++)
         {
-            if (ray_intersects_triangle(ip, tri[t], ray_origin, ray_direction))
+            if (ray_intersects_triangle(&ip2, tri[t], ray_origin, ray_direction))
             {
-                if (ip2.t < t_nearest)
+                if (ip2.t < *t_nearest)
                 {
                     *ip = ip2;
-                    t_nearest = ip2.t;
+                    *t_nearest = ip2.t;
                     hit = 1;
                 }
             }
         }
-    } else
+    } 
+    else
     {
         // split the inner node into a left and right node
         lnode = inner_node_left_child(node);
@@ -214,15 +218,16 @@ check_node(bvh_node *node, float t_nearest, intersection_point* ip, vec3 ray_ori
         // check the left node
         if (bbox_intersect(t_min, t_max, lnode->bbox, ray_origin, ray_direction, 0, C_INFINITY))
         {
-            check_node(lnode, t_nearest, ip, ray_origin, ray_direction);
+            hit = check_node(t_min, t_max, lnode, t_nearest, ip, ray_origin, ray_direction, hit);
         }
-
-        // check the right node
+        
+		// check the right node
         if (bbox_intersect(t_min, t_max, rnode->bbox, ray_origin, ray_direction, 0, C_INFINITY))
         {
-            check_node(rnode, t_nearest, ip, ray_origin, ray_direction);
+            hit = check_node(t_min, t_max, rnode, t_nearest, ip, ray_origin, ray_direction, hit);
         }
     }
+   
     return hit;
 }
 
@@ -241,7 +246,7 @@ find_first_intersected_bvh_triangle(intersection_point* ip,
 {
     // TODO: add optimizations from note 3
     int hit;
-    float *t_min, *t_max, t_nearest;
+    float t_min, t_max, t_nearest;
     bvh_node *node;
 
     node = bvh_root;
@@ -249,11 +254,12 @@ find_first_intersected_bvh_triangle(intersection_point* ip,
     hit = 0;
 
     // Check if the ray intersects with the root node
-    if (bbox_intersect(t_min, t_max, node->bbox, ray_origin, ray_direction, 0, C_INFINITY))
+    if (bbox_intersect(&t_min, &t_max, node->bbox, ray_origin, ray_direction, 0, C_INFINITY))
     {
         // If it intersects, check the node
-        hit = check_node(node, t_nearest, ip, ray_origin, ray_direction);
+        hit = check_node(&t_min, &t_max, node, &t_nearest, ip, ray_origin, ray_direction, hit);
     }
+
     return hit;
 }
 

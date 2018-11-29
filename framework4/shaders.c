@@ -36,77 +36,88 @@ shade_constant(intersection_point ip)
 vec3
 shade_matte(intersection_point ip)
 {
-	vec3 l, offset;
-	float light_angle, ray_angle,L, small;
-	L = 0;
-	small = 0.00003;
-	offset = v3_multiply(ip.n, small);
+	vec3 light_source, offset;
+	float light_angle, ray_angle, intensity, offset_factor;
+	
+	// initial value of the intensity
+	intensity = 0;
+	
+	// the offset factor
+	offset_factor = 0.00003;
+	
+	// get the offset in the direction of the normal
+	offset = v3_multiply(ip.n, offset_factor);
 
 	for (int i = 0; i < scene_num_lights;i++)
 	{
 		// get the vector to the light source
-		l = v3_normalize(v3_subtract(scene_lights[i].position,ip.p));
+		light_source = v3_normalize(v3_subtract(scene_lights[i].position,ip.p));
 
 		// get the light and ray angle of the ip
-		light_angle = v3_dotprod(l, ip.n);
+		light_angle = v3_dotprod(light_source, ip.n);
 
 		// add the intensity of the current light source
-		if(!shadow_check(v3_add(ip.p,offset), l)) L += scene_lights[i].intensity*fmax(0, light_angle);
+		if(!shadow_check(v3_add(ip.p,offset), light_source)) intensity += scene_lights[i].intensity*fmax(0, light_angle);
 	}
-    return v3_create(L, L, L);
+    return v3_create(intensity, intensity, intensity);
 }
 
 vec3
 shade_blinn_phong(intersection_point ip)
 {
 
-    vec3 l, offset, cd, cs, h;
-	float light_angle, ray_angle, small, L, K, kd, ks, a;
+    vec3 light_source, offset, cd, cs, halfway;
+	float light_angle, ray_angle, offset_factor, id, is, kd, ks, a;
 
-	L = 0;
-	K = 0;
-	small = 0.00003;
+	// initial intensities
+	id = 0;
+	is = 0;
+	
+	// the parameters (given values)
 	kd = 0.8;
 	ks = 0.5;
 	a = 50;
-
 	cd = v3_create(1,0,0);
 	cs = v3_create(1,1,1);
 
-	offset = v3_multiply(ip.n, small);
+	// the offset factor
+	offset_factor = 0.00003;
+	
+	// the offset in the direction of the normal
+	offset = v3_multiply(ip.n, offset_factor);
 
 	for (int i = 0; i < scene_num_lights;i++)
 	{
 		// get the vector to the light source
-		l = v3_normalize(v3_subtract(scene_lights[i].position,ip.p));
+		light_source = v3_normalize(v3_subtract(scene_lights[i].position, ip.p));
 
 		// get the light and ray angle of the ip
-		light_angle = v3_dotprod(l, ip.n);
+		light_angle = v3_dotprod(light_source, ip.n);
 		ray_angle = v3_dotprod(ip.i, ip.n);
 
-		h = v3_normalize(v3_add(l, ip.i));
+		halfway = v3_normalize(v3_add(light_source, ip.i));
 
 		// add the intensity of the current light source
-		if(!shadow_check(v3_add(ip.p,offset), l))
+		if(!shadow_check(v3_add(ip.p,offset), light_source))
 		{
-			L += scene_lights[i].intensity*fmax(0, light_angle);
-			K += scene_lights[i].intensity*powf(v3_dotprod(ip.n,h),a);
+			id += scene_lights[i].intensity*fmax(0, light_angle);
+			is += scene_lights[i].intensity*powf(v3_dotprod(ip.n, halfway), a);
 		}
 	}
-	return v3_add(v3_multiply(cd,(scene_ambient_light+kd*L)), v3_multiply(cs,ks*K));
+	return v3_add(v3_multiply(cd, (scene_ambient_light + kd*id)), v3_multiply(cs, ks*is));
 }
 
 vec3
 shade_reflection(intersection_point ip)
 {
     vec3 l, offset, cd, cs, h, r, reflection, col, matte;
-	float small = 0.00003;
+	float offset_factor = 0.00003;
 
 	// get the standard matte shader color
 	matte = shade_matte(ip);
 
 	// get the offset
-	offset = v3_multiply(ip.n, small);
+	offset = v3_multiply(ip.n, offset_factor);
 
 	// calculate the r vector
 	r = v3_normalize(v3_subtract(v3_multiply(ip.n, 2*v3_dotprod(ip.i, ip.n)), ip.i));
