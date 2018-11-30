@@ -181,7 +181,6 @@ ray_intersects_sphere(intersection_point* ip, sphere sph,
 static int
 check_node(float *t_min, float *t_max, bvh_node *node, float *t_nearest, intersection_point* ip, vec3 ray_origin, vec3 ray_direction, int hit)
 {
-	float tmin, tmax;
     int num_triangles;
     triangle *tri;
     bvh_node *lnode, *rnode;
@@ -190,6 +189,7 @@ check_node(float *t_min, float *t_max, bvh_node *node, float *t_nearest, interse
     // Check if the node is a leaf node
     if (node->is_leaf)
     {
+		// get the triangle
         num_triangles = leaf_node_num_triangles(node);
         tri = leaf_node_triangles(node);
         
@@ -204,7 +204,7 @@ check_node(float *t_min, float *t_max, bvh_node *node, float *t_nearest, interse
                 {
                     *ip = ip2;
                     *t_nearest = ip2.t;
-                    hit = 1;
+                    return 1;
                 }
             }
         }
@@ -244,12 +244,11 @@ static int
 find_first_intersected_bvh_triangle(intersection_point* ip,
     vec3 ray_origin, vec3 ray_direction)
 {
-    // TODO: add optimizations from note 3
     int hit;
     float t_min, t_max, t_nearest;
-    bvh_node *node;
-
-    node = bvh_root;
+    
+    bvh_node *node = bvh_root;
+    
     t_nearest = C_INFINITY;
     hit = 0;
 
