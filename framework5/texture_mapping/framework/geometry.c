@@ -221,7 +221,6 @@ setCylinderPoint(GLfloat *p, GLfloat* n, GLfloat* t, int longitude, double heigh
     p[2] = oz + cos(longitude * dToR) * s;
 
     // Set texture coordinate
-    // @todo make sure that this works
     t[0] = longitude*dToR/(2*M_PI);
     t[1] = height;
 
