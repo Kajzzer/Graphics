@@ -266,11 +266,16 @@ InitGL(void)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+            // Chooses the two mipmaps that most closely match the size of the
+            // pixel being textured and uses the GL_LINEAR criterion to produce
+            // a texture value from each mipmap. The final texture value is a
+            // weighted average of those two values.
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glCheckError("glTexParameteri");
 
-            glTexImage2D(GL_TEXTURE_2D, 0, texture_internal_format,
-                width, height, 0, texture_format, texture_type, image_data);
+            gluBuild2DMipmaps(GL_TEXTURE_2D, texture_internal_format,
+                width, height, texture_format, texture_type, image_data);
             glCheckError("glTexImage2D");
 
             // Free the image data, as OpenGL will have made its internal copy by now
@@ -442,7 +447,7 @@ DrawGLScene(void)
 
     glPushAttrib(GL_LIGHTING_BIT);
     glDisable(GL_LIGHTING);
-    // DrawPolylist(polylistSkydome);
+    DrawPolylist(polylistSkydome);
     glPopAttrib();
 
     glDisableClientState(GL_VERTEX_ARRAY);
