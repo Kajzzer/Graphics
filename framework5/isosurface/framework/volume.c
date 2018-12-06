@@ -39,7 +39,7 @@ get_cell(int i, int j, int k)
 {
     cell c;
     
-    // create the corner positions
+    // create the corner positions (matches figure 7)
 	c.p[0] = v3_create(i, j, k);
     c.p[1] = v3_create(i+1, j, k);
     c.p[2] = v3_create(i, j+1, k);

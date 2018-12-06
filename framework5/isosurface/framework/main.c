@@ -206,15 +206,16 @@ void FillArrayWithIsosurface(void)
                 // get the cell
                 c = get_cell(i, j, k);
                 
-                //generate_cell_triangles(triangle *triangles, cell c, unsigned char isovalue);
+                //generate_cell_triangles
                 ct = generate_cell_triangles(triangles, c, isovalue);
                 tht += ct;
                 
+                // create one triangle per loop
                 for(l = 0; l < ct; l++)
                 {
-                    AddVertexToArray(triangles[l].p[0], triangles[l].p[1]);
-                    AddVertexToArray(triangles[l].p[1], triangles[l].p[2]);
-                    AddVertexToArray(triangles[l].p[2], triangles[l].p[0]);
+                    AddVertexToArray(triangles[l].p[0], triangles[l].p[0]);
+                    AddVertexToArray(triangles[l].p[1], triangles[l].p[1]);
+                    AddVertexToArray(triangles[l].p[2], triangles[l].p[2]);
                 }
             }
         }

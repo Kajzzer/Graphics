@@ -23,8 +23,10 @@ interpolate_points(unsigned char isovalue, vec3 p1, vec3 p2, unsigned char v1, u
 {
     /* Initially, simply return the midpoint between p1 and p2.
        So no real interpolation is done yet */
-
-    return v3_add(v3_multiply(p1, 0.5), v3_multiply(p2, 0.5));
+	
+	// unsigned char v = v1+v2;
+	
+	return v3_add(v3_multiply(p1, 0.5), v3_multiply(p2, 0.5));
 }
 
 /* Using the given iso-value generate triangles for the tetrahedron
@@ -53,8 +55,9 @@ generate_tetrahedron_triangles(triangle *triangles, unsigned char isovalue, cell
     if((!b0 && !b1 && !b2 && b3) || (b0 && b1 && b2 && !b3))
     {
         triangles[0].p[0] = interpolate_points(isovalue, c.p[v3], c.p[v0], c.value[v3], c.value[v0]);
-        triangles[0].p[1] = interpolate_points(isovalue, c.p[v1], c.p[v3], c.value[v1], c.value[v3]);
-        triangles[0].p[2] = interpolate_points(isovalue, c.p[v2], c.p[v3], c.value[v2], c.value[v3]);
+        triangles[0].p[1] = interpolate_points(isovalue, c.p[v3], c.p[v1], c.value[v3], c.value[v1]);
+        triangles[0].p[2] = interpolate_points(isovalue, c.p[v3], c.p[v2], c.value[v3], c.value[v2]);
+        
         return 1;
     }
     
@@ -62,17 +65,19 @@ generate_tetrahedron_triangles(triangle *triangles, unsigned char isovalue, cell
     else if((!b0 && !b1 && b2 && !b3) || (b0 && b1 && !b2 && b3))
     {
         triangles[0].p[0] = interpolate_points(isovalue, c.p[v2], c.p[v0], c.value[v2], c.value[v0]);
-        triangles[0].p[1] = interpolate_points(isovalue, c.p[v1], c.p[v2], c.value[v1], c.value[v2]);
+        triangles[0].p[1] = interpolate_points(isovalue, c.p[v2], c.p[v1], c.value[v2], c.value[v1]);
         triangles[0].p[2] = interpolate_points(isovalue, c.p[v2], c.p[v3], c.value[v2], c.value[v3]);
+       
         return 1;
     }
     
     // 0100 or 1011
     else if((!b0 && b1 && !b2 && !b3) || (b0 && !b1 && b2 && b3))
     {
-        triangles[0].p[0] = interpolate_points(isovalue, c.p[v0], c.p[v1], c.value[v0], c.value[v1]);
+        triangles[0].p[0] = interpolate_points(isovalue, c.p[v1], c.p[v0], c.value[v1], c.value[v0]);
         triangles[0].p[1] = interpolate_points(isovalue, c.p[v1], c.p[v2], c.value[v1], c.value[v2]);
         triangles[0].p[2] = interpolate_points(isovalue, c.p[v1], c.p[v3], c.value[v1], c.value[v3]);
+        
         return 1;
     }
     
@@ -82,6 +87,7 @@ generate_tetrahedron_triangles(triangle *triangles, unsigned char isovalue, cell
         triangles[0].p[0] = interpolate_points(isovalue, c.p[v0], c.p[v1], c.value[v0], c.value[v1]);
         triangles[0].p[1] = interpolate_points(isovalue, c.p[v0], c.p[v2], c.value[v0], c.value[v2]);
         triangles[0].p[2] = interpolate_points(isovalue, c.p[v0], c.p[v3], c.value[v0], c.value[v3]);
+        
         return 1;
     }
     
@@ -89,11 +95,13 @@ generate_tetrahedron_triangles(triangle *triangles, unsigned char isovalue, cell
     else if((b0 && b1 && !b2 && !b3) || (!b0 && !b1 && b2 && b3))
     {
         triangles[0].p[0] = interpolate_points(isovalue, c.p[v0], c.p[v1], c.value[v0], c.value[v1]);
-        triangles[0].p[1] = interpolate_points(isovalue, c.p[v1], c.p[v2], c.value[v1], c.value[v2]);
-        triangles[0].p[2] = interpolate_points(isovalue, c.p[v1], c.p[v3], c.value[v1], c.value[v3]);
-        triangles[1].p[0] = interpolate_points(isovalue, c.p[v0], c.p[v1], c.value[v0], c.value[v1]);
-        triangles[1].p[1] = interpolate_points(isovalue, c.p[v0], c.p[v2], c.value[v0], c.value[v2]);
-        triangles[1].p[2] = interpolate_points(isovalue, c.p[v0], c.p[v3], c.value[v0], c.value[v3]);
+        triangles[0].p[1] = interpolate_points(isovalue, c.p[v0], c.p[v2], c.value[v0], c.value[v2]);
+        triangles[0].p[2] = interpolate_points(isovalue, c.p[v0], c.p[v3], c.value[v0], c.value[v3]);
+       
+        triangles[1].p[0] = interpolate_points(isovalue, c.p[v1], c.p[v0], c.value[v1], c.value[v0]);
+        triangles[1].p[1] = interpolate_points(isovalue, c.p[v1], c.p[v2], c.value[v1], c.value[v2]);
+        triangles[1].p[2] = interpolate_points(isovalue, c.p[v1], c.p[v3], c.value[v1], c.value[v3]);
+       
         return 2;
     }
     
@@ -103,21 +111,26 @@ generate_tetrahedron_triangles(triangle *triangles, unsigned char isovalue, cell
         triangles[0].p[0] = interpolate_points(isovalue, c.p[v0], c.p[v1], c.value[v0], c.value[v1]);
         triangles[0].p[1] = interpolate_points(isovalue, c.p[v0], c.p[v2], c.value[v0], c.value[v2]);
         triangles[0].p[2] = interpolate_points(isovalue, c.p[v0], c.p[v3], c.value[v0], c.value[v3]);
+        
         triangles[1].p[0] = interpolate_points(isovalue, c.p[v2], c.p[v0], c.value[v2], c.value[v0]);
-        triangles[1].p[1] = interpolate_points(isovalue, c.p[v1], c.p[v2], c.value[v1], c.value[v2]);
+        triangles[1].p[1] = interpolate_points(isovalue, c.p[v2], c.p[v1], c.value[v2], c.value[v1]);
         triangles[1].p[2] = interpolate_points(isovalue, c.p[v2], c.p[v3], c.value[v2], c.value[v3]);
+        
         return 2;
     }
     
     // 0110 or 1001
     else if((!b0 && b1 && b2 && !b3) || (b0 && !b1 && !b2 && b3))
     {
-        triangles[0].p[0] = interpolate_points(isovalue, c.p[v2], c.p[v0], c.value[v2], c.value[v0]);
+		
+        triangles[0].p[0] = interpolate_points(isovalue, c.p[v1], c.p[v0], c.value[v1], c.value[v0]);
         triangles[0].p[1] = interpolate_points(isovalue, c.p[v1], c.p[v2], c.value[v1], c.value[v2]);
-        triangles[0].p[2] = interpolate_points(isovalue, c.p[v2], c.p[v3], c.value[v2], c.value[v3]);
-        triangles[1].p[0] = interpolate_points(isovalue, c.p[v0], c.p[v1], c.value[v0], c.value[v1]);
-        triangles[1].p[1] = interpolate_points(isovalue, c.p[v1], c.p[v2], c.value[v1], c.value[v2]);
-        triangles[1].p[2] = interpolate_points(isovalue, c.p[v1], c.p[v3], c.value[v1], c.value[v3]);
+        triangles[0].p[2] = interpolate_points(isovalue, c.p[v1], c.p[v3], c.value[v1], c.value[v3]);
+        
+        triangles[1].p[0] = interpolate_points(isovalue, c.p[v2], c.p[v0], c.value[v2], c.value[v0]);
+        triangles[1].p[1] = interpolate_points(isovalue, c.p[v2], c.p[v1], c.value[v2], c.value[v1]);
+        triangles[1].p[2] = interpolate_points(isovalue, c.p[v2], c.p[v3], c.value[v2], c.value[v3]);
+        
         return 2;
     }
     
@@ -133,28 +146,58 @@ generate_tetrahedron_triangles(triangle *triangles, unsigned char isovalue, cell
    Return the number of triangles produced
 */
 
+/*
 int
 generate_cell_triangles(triangle *triangles, cell c, unsigned char isovalue)
 {
 	int tht = 0;
 	
 	// T1
-    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 0, 1, 3, 7);
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 0,1,3,2);
     
     // T2
-    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 7, 6, 2, 0);
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 0,1,5,4);
     
     // T3
-    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 1, 0, 5, 7);
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 2,0,4,6);
     
     // T4
-    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 3, 7, 2, 0);
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 4,6,7,5);
     
     // T5
-    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 7, 5, 4, 0);
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 3,2,6,7);
     
     // T6
-    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 7, 6, 4, 0);
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 1,3,7,5);
+    
+    return tht;
+}*/
+
+
+int
+generate_cell_triangles(triangle *triangles, cell c, unsigned char isovalue)
+{
+	int tht = 0;
+	
+	// matches figure 9
+	
+	// T1
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 0,1,3,7);
+    
+    // T2
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 0,2,6,7);
+    
+    // T3
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 0,1,5,7);
+    
+    // T4
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 0,2,3,7);
+    
+    // T5
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 0,4,5,7);
+    
+    // T6
+    tht += generate_tetrahedron_triangles(&triangles[tht], isovalue, c, 0,4,6,7);
     
     return tht;
 }
