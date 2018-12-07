@@ -1,10 +1,10 @@
 /* Computer Graphics, Assignment, Volume rendering with cubes/points/isosurface
  *
- * Student name ....
- * Student email ...
- * Collegekaart ....
- * Date ............
- * Comments ........
+ * Student name .... Kaj Meijer                 Lotte Philippus
+ * Student email ... k.d.meijer17@gmail.com     lotte.philippus@gmail.com
+ * Collegekaart .... 10509534                   11291168
+ * Date ............ 7-12-2018
+ * Comments ........ None
  *
  * (always fill in these fields before submitting!!)
  */
@@ -37,32 +37,30 @@ voxel2idx(int i, int j, int k)
 cell
 get_cell(int i, int j, int k)
 {
-    cell c;
-    
-    // create the corner positions (matches figure 7)
-	c.p[0] = v3_create(i, j, k);
-    c.p[1] = v3_create(i+1, j, k);
-    c.p[2] = v3_create(i, j+1, k);
-    c.p[3] = v3_create(i+1, j+1, k);
-    c.p[4] = v3_create(i, j, k+1);
-    c.p[5] = v3_create(i+1, j, k+1);
-    c.p[6] = v3_create(i, j+1, k+1);
-    c.p[7] = v3_create(i+1, j+1, k+1);
-    
-    // don't create the normals, since it is used for the solutions
-    
-    // create the associated scalar values 
-    c.value[0] = voxel2idx(i, j, k);
-    c.value[1] = voxel2idx(i+1, j, k);
-    c.value[2] = voxel2idx(i, j+1, k);
-    c.value[3] = voxel2idx(i+1, j+1, k);
-    c.value[4] = voxel2idx(i, j, k+1);
-    c.value[5] = voxel2idx(i+1, j, k+1);
-    c.value[6] = voxel2idx(i, j+1, k+1);
-    c.value[7] = voxel2idx(i+1, j+1, k+1);
-    
-    // return the cell
-    return c;
+   cell c;
+
+   // create the corner positions (matches figure 7)
+   c.p[0] = v3_create(i, j, k);
+   c.p[1] = v3_create(i+1, j, k);
+   c.p[2] = v3_create(i, j+1, k);
+   c.p[3] = v3_create(i+1, j+1, k);
+   c.p[4] = v3_create(i, j, k+1);
+   c.p[5] = v3_create(i+1, j, k+1);
+   c.p[6] = v3_create(i, j+1, k+1);
+   c.p[7] = v3_create(i+1, j+1, k+1);
+
+   // create the associated scalar values
+   c.value[0] = volume[voxel2idx(i, j, k)];
+   c.value[1] = volume[voxel2idx(i+1, j, k)];
+   c.value[2] = volume[voxel2idx(i, j+1, k)];
+   c.value[3] = volume[voxel2idx(i+1, j+1, k)];
+   c.value[4] = volume[voxel2idx(i, j, k+1)];
+   c.value[5] = volume[voxel2idx(i+1, j, k+1)];
+   c.value[6] = volume[voxel2idx(i, j+1, k+1)];
+   c.value[7] = volume[voxel2idx(i+1, j+1, k+1)];
+
+   // return the cell
+   return c;
 }
 
 /* Utility function to read a volume dataset from a VTK file.

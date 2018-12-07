@@ -5,11 +5,11 @@
  * Date ............ 29.10.2007
  * Created by ...... Paul Melis
  *
- * Student name ....
- * Student email ...
- * Collegekaart ....
- * Date ............
- * Comments ........
+ * Student name .... Kaj Meijer                 Lotte Philippus
+ * Student email ... k.d.meijer17@gmail.com     lotte.philippus@gmail.com
+ * Collegekaart .... 10509534                   11291168
+ * Date ............ 7-12-2018
+ * Comments ........ None
  *
  * (always fill in these fields before submitting!!)
  */
@@ -188,9 +188,10 @@ void FillArrayWithCubes(void)
 
 void FillArrayWithIsosurface(void)
 {
-    int i, j, k, l, ct, tht = 0;
+    int i, j, k, l, ct;
     cell c;
-    
+    triangle t[12];
+
     // over all z
 	for (k = 0; k < nz; k++)
     {
@@ -200,22 +201,18 @@ void FillArrayWithIsosurface(void)
 			// over all x
             for (i = 0; i < nx; i++)
             {
-				// the triangles (6*2 triangles, max 2 per tetrahedron)
-                triangle *triangles = malloc(6*2*sizeof(triangle));
-                
                 // get the cell
                 c = get_cell(i, j, k);
-                
+
                 //generate_cell_triangles
-                ct = generate_cell_triangles(triangles, c, isovalue);
-                tht += ct;
-                
+                ct = generate_cell_triangles(t, c, isovalue);
+
                 // create one triangle per loop
                 for(l = 0; l < ct; l++)
                 {
-                    AddVertexToArray(triangles[l].p[0], triangles[l].p[0]);
-                    AddVertexToArray(triangles[l].p[1], triangles[l].p[1]);
-                    AddVertexToArray(triangles[l].p[2], triangles[l].p[2]);
+                    AddVertexToArray(t[l].p[0], t[l].n[0]);
+                    AddVertexToArray(t[l].p[1], t[l].n[1]);
+                    AddVertexToArray(t[l].p[2], t[l].n[2]);
                 }
             }
         }
