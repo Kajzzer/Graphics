@@ -1,0 +1,34 @@
+What happens for case 0011/1100 when two of the tetrahedron’s vertex
+values are equal to the iso-value of interest and the other two are greater
+than the iso-value? Is this a bad thing? Hint: think of the kind of output
+generated in this case.
+
+	It creates a small gap between the cells instead of the corners, those will be filled in. 
+	The higher the iso-value is, the bigger the gap is until the corner blocks are as big as the actual blocks.
+	This will go on until the max iso value of 255.
+	It is a bad thing.
+
+
+We render the isosurface two-sided here, that is, without back-face culling.
+If the isosurface forms a closed surface, there would be no need for this,
+as the inside/back-side of the surface would never be visible. For what
+situation does marching tetrahedra not produce a closed isosurface?
+
+	Looking at the knee, it is a part of a bone. If we look at this isosurface with an iso-value of 80 and
+	from below, we can see the inside of the surface since it's cut off. So we would need a cut off dataset of a whole object. 
+
+What optimizations to the marching tetrahedra algorithm as described in
+Section 2.2 can you think of? Are there computations that are performed
+redundantly? Is there an opportunity for parallel processing?
+
+	You can check for the difference between the vertices and the iso-value. If the difference is small enough, you 
+	just use the cell data. This uses less calculations.  
+	
+	There are some redundantly performed computations. Every tetrahedron has 2 matching points, corner 0 and corner 7. So 
+	
+		t.p[2] = interpolate_points(isovalue, c.p[v0], c.p[v3], c.value[v0], c.value[v3]);
+	
+	has to be calculated only once, not for every triangle we create.
+	
+	There is an opportunity for parallel processing. We can create for-loops that add multiple cell triangles at the time.
+	The triangle calculations for these certain triangles can be performed at the same time.
