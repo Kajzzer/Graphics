@@ -9,7 +9,7 @@
  * Student email ... k.d.meijer17@gmail.com     lotte.philippus@gmail.com
  * Collegekaart .... 10509534                   11291168
  * Date ............ 7-12-2018
- * Comments ........ None
+ * Comments ........ Questions are answered in questions.txt
  *
  * (always fill in these fields before submitting!!)
  */
