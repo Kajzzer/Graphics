@@ -90,6 +90,9 @@ void draw(void)
     double bally = ball->GetPosition().y;
     double ballr = ball->GetFixtureList()[0].GetShape()->m_radius;
     double pi = 3.141592653589793;
+    float timeStep = 1.0f/60.0f;
+    int velocityIterations = 6;
+    int positionIterations = 2;
     frame_count++;
 
     // Clear the buffer
@@ -100,9 +103,11 @@ void draw(void)
     //
     // Do any logic and drawing here.
     //
+    world.Step(timeStep, velocityIterations, positionIterations);
 
     // Draw a red ball
     glColor3f(1, 0, 0);
+    printf("%f %f\n", ballx, bally);
     glBegin(GL_TRIANGLE_FAN);
     glVertex2f(ballx, bally);
     for (int i = 0; i <= circle_triangles; i++)
