@@ -34,6 +34,10 @@ int frame_count;
 unsigned int num_levels;
 level_t *levels;
 
+b2Vec2 gravity(0.0f, -10.0f);
+b2World world(gravity);
+b2Body* ball;
+
 
 /*
  * Load a given world, i.e. read the world from the `levels' data structure and
@@ -51,6 +55,25 @@ void load_world(unsigned int level)
 
     // Create a Box2D world and populate it with all bodies for this level
     // (including the ball).
+
+    // Define ball body
+    b2BodyDef ballBodyDef;
+    ballBodyDef.type = b2_dynamicBody;
+    ballBodyDef.position.Set(4.0f, 4.0f);
+
+    // Define circle shape
+    b2CircleShape circle;
+    circle.m_p.Set(0.0f, 0.0f);
+    circle.m_radius = 0.2f;
+
+    // Define ball fixture
+    b2FixtureDef ballFixture;
+    ballFixture.shape = &circle;
+    ballFixture.density = 1.0f;
+
+    // Create ball body
+    ball = world.CreateBody(&ballBodyDef);
+    ball->CreateFixture(&ballFixture);
 }
 
 
@@ -62,6 +85,11 @@ void draw(void)
 {
     int time = glutGet(GLUT_ELAPSED_TIME);
     int frametime = time - last_time;
+    int circle_triangles = 30;
+    double ballx = ball->GetPosition().x;
+    double bally = ball->GetPosition().y;
+    double ballr = ball->GetFixtureList()[0].GetShape()->m_radius;
+    double pi = 3.141592653589793;
     frame_count++;
 
     // Clear the buffer
@@ -72,6 +100,17 @@ void draw(void)
     //
     // Do any logic and drawing here.
     //
+
+    // Draw a red ball
+    glColor3f(1, 0, 0);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(ballx, bally);
+    for (int i = 0; i <= circle_triangles; i++)
+    {
+        glVertex2f(ballx + ballr * cos(i * 2 * pi / circle_triangles),
+                   bally + ballr * sin(i * 2 * pi / circle_triangles));
+    }
+    glEnd();
 
 
     // Show rendered frame
