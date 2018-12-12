@@ -36,7 +36,7 @@ unsigned int current_level;
 level_t *levels;
 
 b2Vec2 gravity(0.0f, -5.0f);
-b2World world(gravity);
+b2World* world = new b2World(gravity);
 b2Body* ball;
 b2Body* end;
 
@@ -74,7 +74,7 @@ void load_world(unsigned int level)
     ballFixture.density = 1.0f;
 
     // Create ball body
-    ball = world.CreateBody(&ballBodyDef);
+    ball = world->CreateBody(&ballBodyDef);
     ball->CreateFixture(&ballFixture);
 
 
@@ -101,7 +101,7 @@ void load_world(unsigned int level)
     endFixture.density = 1.0f;
 
     // Create ball body
-    end = world.CreateBody(&endBodyDef);
+    end = world->CreateBody(&endBodyDef);
     end->CreateFixture(&endFixture);
 
     unsigned int i, j;
@@ -131,7 +131,7 @@ void load_world(unsigned int level)
         levelFixtureDef.shape = &shape;
         levelFixtureDef.density = 1.0f;
 
-        body = world.CreateBody(&levelBodyDef);
+        body = world->CreateBody(&levelBodyDef);
         body->CreateFixture(&levelFixtureDef);
     }
 
@@ -152,18 +152,9 @@ void draw(void)
     double bally = ball->GetPosition().y;
     double ballr = ball->GetFixtureList()[0].GetShape()->m_radius;
 
-    double polyx, polyy;
-
     double endx = end->GetPosition().x;
     double endy = end->GetPosition().y;
 
-
-    if(ballx == endx && bally == endy)
-    {
-        exit(0);
-    //     // current_level = current_level < num_levels-1 ? current_level+1 : 0;
-    //     // load_world(current_level);
-    }
 
     double pi = 3.141592653589793;
     float timeStep = 1.0f/60.0f;
@@ -178,10 +169,10 @@ void draw(void)
     //
     // Do any logic and drawing here.
     //
-    world.Step(timeStep, velocityIterations, positionIterations);
+    world->Step(timeStep, velocityIterations, positionIterations);
 
     // Draw a red ball
-    glColor3f(1, 0, 0);
+    glColor3f(1, 0, 1);
     // printf("%f %f\n", ballx, bally);
     glBegin(GL_TRIANGLE_FAN);
     glVertex2f(ballx, bally);
@@ -198,7 +189,7 @@ void draw(void)
     {
 
         unsigned int num_verts = levels[current_level].polygons[i].num_verts;
-        glBegin(GL_TRIANGLE_STRIP);
+        glBegin(GL_POLYGON);
 
         for(j = 0; j < num_verts; j++)
         {
@@ -208,28 +199,44 @@ void draw(void)
         glEnd();
     }
 
-    // for ( b2Body* b = world.GetBodyList(); b; b = b->GetNext())
-    // {
-    //     polyx = b->GetPosition().x;
-    //     polyy = b->GetPosition().y;
-    //
-    //     for ( b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext())
-    //     {
-    //           //do something with the body 'b'
-    //           b2Shape* s = f->GetShape();
-    //
-    //     }
-    // }
-
-
-
     glColor3f(0.0f, 0.0f, 1.0f);
-    glBegin(GL_TRIANGLE_STRIP);
+    glBegin(GL_POLYGON);
         glVertex2f(endx-0.05f, endy-0.05f);
         glVertex2f(endx-0.05f, endy+0.05f);
-        glVertex2f(endx+0.05f, endy-0.05f);
         glVertex2f(endx+0.05f, endy+0.05f);
+        glVertex2f(endx+0.05f, endy-0.05f);
     glEnd();
+
+
+    b2AABB aabbA;
+    aabbA.lowerBound = b2Vec2(FLT_MAX,FLT_MAX);
+    aabbA.upperBound = b2Vec2(-FLT_MAX,-FLT_MAX);
+    b2Fixture* fixture = ball->GetFixtureList();
+    while (fixture != NULL)
+    {
+        aabbA.Combine(aabbA, fixture->GetAABB(0));
+        fixture = fixture->GetNext();
+    }
+
+    b2AABB aabbB;
+    aabbB.lowerBound = b2Vec2(FLT_MAX,FLT_MAX);
+    aabbB.upperBound = b2Vec2(-FLT_MAX,-FLT_MAX);
+    b2Fixture* fixture2 = end->GetFixtureList();
+    while (fixture2 != NULL)
+    {
+        aabbB.Combine(aabbB, fixture2->GetAABB(0));
+        fixture2 = fixture2->GetNext();
+    }
+
+    int overlap = b2TestOverlap(aabbA, aabbB);
+    if (overlap)
+    {
+        current_level++;
+        delete world;
+        world = new b2World(gravity);
+        load_world(current_level);
+    }
+
 
     // Show rendered frame
     glutSwapBuffers();
