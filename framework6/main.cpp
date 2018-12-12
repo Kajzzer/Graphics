@@ -144,7 +144,7 @@ void load_world(unsigned int level)
  */
 void draw(void)
 {
-
+    unsigned int i, j;
     int time = glutGet(GLUT_ELAPSED_TIME);
     int frametime = time - last_time;
     int circle_triangles = 30;
@@ -152,10 +152,12 @@ void draw(void)
     double bally = ball->GetPosition().y;
     double ballr = ball->GetFixtureList()[0].GetShape()->m_radius;
 
+    double polyx, polyy;
+
     double endx = end->GetPosition().x;
     double endy = end->GetPosition().y;
 
-    printf("END: %f, %f\n",endx, endy );
+
     if(ballx == endx && bally == endy)
     {
         exit(0);
@@ -173,7 +175,6 @@ void draw(void)
     glColor3f(0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-
     //
     // Do any logic and drawing here.
     //
@@ -184,13 +185,51 @@ void draw(void)
     // printf("%f %f\n", ballx, bally);
     glBegin(GL_TRIANGLE_FAN);
     glVertex2f(ballx, bally);
-    for (int i = 0; i <= circle_triangles; i++)
+    for (i = 0; i <= circle_triangles; i++)
     {
         glVertex2f(ballx + ballr * cos(i * 2 * pi / circle_triangles),
                    bally + ballr * sin(i * 2 * pi / circle_triangles));
     }
     glEnd();
 
+    glColor3f(0.0f, 1.0f, 0.0f);
+
+    for(i = 0; i < levels[current_level].num_polygons; i++)
+    {
+
+        unsigned int num_verts = levels[current_level].polygons[i].num_verts;
+        glBegin(GL_TRIANGLE_STRIP);
+
+        for(j = 0; j < num_verts; j++)
+        {
+            glVertex2f(levels[current_level].polygons[i].verts[j].x, levels[current_level].polygons[i].verts[j].y);
+        }
+
+        glEnd();
+    }
+
+    // for ( b2Body* b = world.GetBodyList(); b; b = b->GetNext())
+    // {
+    //     polyx = b->GetPosition().x;
+    //     polyy = b->GetPosition().y;
+    //
+    //     for ( b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext())
+    //     {
+    //           //do something with the body 'b'
+    //           b2Shape* s = f->GetShape();
+    //
+    //     }
+    // }
+
+
+
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glBegin(GL_TRIANGLE_STRIP);
+        glVertex2f(endx-0.05f, endy-0.05f);
+        glVertex2f(endx-0.05f, endy+0.05f);
+        glVertex2f(endx+0.05f, endy-0.05f);
+        glVertex2f(endx+0.05f, endy+0.05f);
+    glEnd();
 
     // Show rendered frame
     glutSwapBuffers();
@@ -201,7 +240,7 @@ void draw(void)
         char window_title[128];
         snprintf(window_title, 128,
                 "Box2D: %f fps, level %d/%d",
-                frame_count / (frametime / 1000.f), -1, num_levels);
+                frame_count / (frametime / 1000.f), current_level+1, num_levels);
         glutSetWindowTitle(window_title);
         last_time = time;
         frame_count = 0;
