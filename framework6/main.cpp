@@ -32,12 +32,13 @@ int frame_count;
 
 // Information about the levels loaded from files will be available in these.
 unsigned int num_levels;
+unsigned int current_level;
 level_t *levels;
 
-b2Vec2 gravity(0.0f, -10.0f);
+b2Vec2 gravity(0.0f, -5.0f);
 b2World world(gravity);
 b2Body* ball;
-
+b2Body* end;
 
 /*
  * Load a given world, i.e. read the world from the `levels' data structure and
@@ -59,7 +60,8 @@ void load_world(unsigned int level)
     // Define ball body
     b2BodyDef ballBodyDef;
     ballBodyDef.type = b2_dynamicBody;
-    ballBodyDef.position.Set(4.0f, 4.0f);
+    ballBodyDef.position.Set(levels[level].start.x, levels[level].start.y);
+    ballBodyDef.angle = 0.0f;
 
     // Define circle shape
     b2CircleShape circle;
@@ -74,6 +76,65 @@ void load_world(unsigned int level)
     // Create ball body
     ball = world.CreateBody(&ballBodyDef);
     ball->CreateFixture(&ballFixture);
+
+
+    b2BodyDef endBodyDef;
+    endBodyDef.type = b2_staticBody;
+    endBodyDef.position.Set(levels[level].end.x, levels[level].end.y);
+    endBodyDef.angle = 0.0f;
+
+    // Define box shape
+    b2PolygonShape box;
+
+    b2Vec2 *endVertices = new b2Vec2[4];
+
+    endVertices[0] = b2Vec2(levels[level].end.x-0.5, levels[level].end.y-10);
+    endVertices[1] = b2Vec2(levels[level].end.x-0.5, levels[level].end.y+10);
+    endVertices[2] = b2Vec2(levels[level].end.x+0.5, levels[level].end.y-10);
+    endVertices[3] = b2Vec2(levels[level].end.x+0.5, levels[level].end.y+10);
+
+    box.Set(endVertices , 4);
+
+    // Define ball fixture
+    b2FixtureDef endFixture;
+    endFixture.shape = &box;
+    endFixture.density = 1.0f;
+
+    // Create ball body
+    end = world.CreateBody(&endBodyDef);
+    end->CreateFixture(&endFixture);
+
+    unsigned int i, j;
+
+    b2Body* body;
+
+    for(i = 0; i < levels[level].num_polygons; i++)
+    {
+        b2PolygonShape shape;
+        b2BodyDef levelBodyDef;
+        b2FixtureDef levelFixtureDef;
+
+        unsigned int num_verts = levels[level].polygons[i].num_verts;
+
+        b2Vec2 *vertices = new b2Vec2[num_verts];
+        for(j = 0; j < num_verts; j++)
+        {
+            vertices[j] = b2Vec2(levels[level].polygons[i].verts[j].x, levels[level].polygons[i].verts[j].y);
+        }
+
+        shape.Set(vertices, num_verts);
+
+        levelBodyDef.type = b2_staticBody;
+        levelBodyDef.position.Set(levels[level].polygons[i].position.x,levels[level].polygons[i].position.y);
+        levelBodyDef.angle = 0.0f;
+
+        levelFixtureDef.shape = &shape;
+        levelFixtureDef.density = 1.0f;
+
+        body = world.CreateBody(&levelBodyDef);
+        body->CreateFixture(&levelFixtureDef);
+    }
+
 }
 
 
@@ -83,12 +144,25 @@ void load_world(unsigned int level)
  */
 void draw(void)
 {
+
     int time = glutGet(GLUT_ELAPSED_TIME);
     int frametime = time - last_time;
     int circle_triangles = 30;
     double ballx = ball->GetPosition().x;
     double bally = ball->GetPosition().y;
     double ballr = ball->GetFixtureList()[0].GetShape()->m_radius;
+
+    double endx = end->GetPosition().x;
+    double endy = end->GetPosition().y;
+
+    printf("END: %f, %f\n",endx, endy );
+    if(ballx == endx && bally == endy)
+    {
+        exit(0);
+    //     // current_level = current_level < num_levels-1 ? current_level+1 : 0;
+    //     // load_world(current_level);
+    }
+
     double pi = 3.141592653589793;
     float timeStep = 1.0f/60.0f;
     int velocityIterations = 6;
@@ -107,7 +181,7 @@ void draw(void)
 
     // Draw a red ball
     glColor3f(1, 0, 0);
-    printf("%f %f\n", ballx, bally);
+    // printf("%f %f\n", ballx, bally);
     glBegin(GL_TRIANGLE_FAN);
     glVertex2f(ballx, bally);
     for (int i = 0; i <= circle_triangles; i++)
@@ -211,7 +285,8 @@ int main(int argc, char **argv)
     printf("Loaded %d levels.\n", num_levels);
 
     // Load the first level (i.e. create all Box2D stuff).
-    load_world(0);
+    current_level = 0;
+    load_world(current_level);
 
     last_time = glutGet(GLUT_ELAPSED_TIME);
     frame_count = 0;
