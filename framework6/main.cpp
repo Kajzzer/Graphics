@@ -77,35 +77,21 @@ void load_world(unsigned int level)
     ball = world->CreateBody(&ballBodyDef);
     ball->CreateFixture(&ballFixture);
 
+    // Define end body
+    b2BodyDef endDef;
+    endDef.position.Set(levels[level].end.x, levels[level].end.y);
 
-    b2BodyDef endBodyDef;
-    endBodyDef.type = b2_staticBody;
-    endBodyDef.position.Set(levels[level].end.x, levels[level].end.y);
-    endBodyDef.angle = 0.0f;
+    // Define end shape
+    b2PolygonShape endBox;
+    endBox.SetAsBox(0.0f, 0.0f);
 
-    // Define box shape
-    b2PolygonShape box;
+    // Create end body
+    end = world->CreateBody(&endDef);
+    end->CreateFixture(&endBox, 1.0f);
 
-    b2Vec2 *endVertices = new b2Vec2[4];
 
-    endVertices[0] = b2Vec2(levels[level].end.x-0.5, levels[level].end.y-10);
-    endVertices[1] = b2Vec2(levels[level].end.x-0.5, levels[level].end.y+10);
-    endVertices[2] = b2Vec2(levels[level].end.x+0.5, levels[level].end.y-10);
-    endVertices[3] = b2Vec2(levels[level].end.x+0.5, levels[level].end.y+10);
-
-    box.Set(endVertices , 4);
-
-    // Define ball fixture
-    b2FixtureDef endFixture;
-    endFixture.shape = &box;
-    endFixture.density = 1.0f;
-
-    // Create ball body
-    end = world->CreateBody(&endBodyDef);
-    end->CreateFixture(&endFixture);
-
+    // Define and create level polygons
     unsigned int i, j;
-
     b2Body* body;
 
     for(i = 0; i < levels[level].num_polygons; i++)
@@ -173,7 +159,6 @@ void draw(void)
 
     // Draw a red ball
     glColor3f(1, 0, 1);
-    // printf("%f %f\n", ballx, bally);
     glBegin(GL_TRIANGLE_FAN);
     glVertex2f(ballx, bally);
     for (i = 0; i <= circle_triangles; i++)
@@ -183,6 +168,7 @@ void draw(void)
     }
     glEnd();
 
+    // Draw level polygons
     glColor3f(0.0f, 1.0f, 0.0f);
 
     for(i = 0; i < levels[current_level].num_polygons; i++)
@@ -199,6 +185,7 @@ void draw(void)
         glEnd();
     }
 
+    // Draw the end block
     glColor3f(0.0f, 0.0f, 1.0f);
     glBegin(GL_POLYGON);
         glVertex2f(endx-0.05f, endy-0.05f);
@@ -208,6 +195,7 @@ void draw(void)
     glEnd();
 
 
+    // Create a bounding box around the ball
     b2AABB aabbA;
     aabbA.lowerBound = b2Vec2(FLT_MAX,FLT_MAX);
     aabbA.upperBound = b2Vec2(-FLT_MAX,-FLT_MAX);
@@ -218,6 +206,7 @@ void draw(void)
         fixture = fixture->GetNext();
     }
 
+    // Create a bounding box around the end block
     b2AABB aabbB;
     aabbB.lowerBound = b2Vec2(FLT_MAX,FLT_MAX);
     aabbB.upperBound = b2Vec2(-FLT_MAX,-FLT_MAX);
@@ -228,6 +217,8 @@ void draw(void)
         fixture2 = fixture2->GetNext();
     }
 
+    // Check if the ball and the end block overlap. If they do, contintue to the
+    // next level by deleting the old world and creating a new one.
     int overlap = b2TestOverlap(aabbA, aabbB);
     if (overlap)
     {
