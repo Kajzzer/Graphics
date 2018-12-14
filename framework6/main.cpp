@@ -34,11 +34,15 @@ int frame_count;
 unsigned int num_levels;
 unsigned int current_level;
 level_t *levels;
+unsigned int num_clicks;
 
-b2Vec2 gravity(0.0f, -5.0f);
+b2Vec2 gravity(0.0f, -3.0f);
 b2World* world = new b2World(gravity);
 b2Body* ball;
 b2Body* end;
+b2Body* userPoly;
+int positions[8];
+b2Vec2 vertices[4];
 
 /*
  * Load a given world, i.e. read the world from the `levels' data structure and
@@ -66,7 +70,7 @@ void load_world(unsigned int level)
     // Define circle shape
     b2CircleShape circle;
     circle.m_p.Set(0.0f, 0.0f);
-    circle.m_radius = 0.2f;
+    circle.m_radius = 0.15f;
 
     // Define ball fixture
     b2FixtureDef ballFixture;
@@ -194,6 +198,16 @@ void draw(void)
         glVertex2f(endx+0.05f, endy-0.05f);
     glEnd();
 
+    // Draw the polygon from the user input (doesn't work)
+    glColor3f(0.5f, 0.5f, 0.5f);
+    glBegin(GL_POLYGON);
+        for (int k = 0; k < 8; k+=2)
+        {
+            glVertex2f(positions[i], positions[i+1]);
+        }
+    glEnd();
+
+
 
     // Create a bounding box around the ball
     b2AABB aabbA;
@@ -218,11 +232,22 @@ void draw(void)
     }
 
     // Check if the ball and the end block overlap. If they do, contintue to the
-    // next level by deleting the old world and creating a new one.
+    // next level
     int overlap = b2TestOverlap(aabbA, aabbB);
     if (overlap)
     {
         current_level++;
+
+        // Exit the game if all the levels have been finished
+        if (current_level == 5)
+        {
+            exit(0);
+        }
+
+        // Reset the number of clicks
+        num_clicks = 0;
+
+        // Delete the old world and create a new world
         delete world;
         world = new b2World(gravity);
         load_world(current_level);
@@ -278,7 +303,56 @@ void key_pressed(unsigned char key, int x, int y)
  */
 void mouse_clicked(int button, int state, int x, int y)
 {
+    float x_pos;
+    float y_pos;
 
+    // If the number of clicks reaches 4, reset it
+    if (num_clicks == 8)
+    {
+        num_clicks = 0;
+    }
+
+    // If the number of clicks is even, register the x and y position in an
+    // array
+    if (num_clicks % 2 == 0)
+    {
+        // Calculate the x and y position from the resolution and the world
+        // coordinates
+        x_pos = x * (reso_x / world_x);
+        y_pos = -y * (reso_y / world_y);
+
+        positions[num_clicks] = x_pos;
+        positions[num_clicks+1] = y_pos;
+    }
+
+    // If the number of clicks is 7, create the body with the vertices from the
+    // positions array (doesn't work)
+    if (num_clicks == 7)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            vertices[i].Set(positions[i], positions[i+1]);
+        }
+        b2PolygonShape userPolyShape;
+        userPolyShape.Set(vertices, 4);
+
+        b2BodyDef polyBodyDef;
+        polyBodyDef.type = b2_dynamicBody;
+        polyBodyDef.position.Set(x, y);
+        polyBodyDef.angle = 0.0f;
+
+        b2FixtureDef polyFixtureDef;
+        polyFixtureDef.shape = &userPolyShape;
+        polyFixtureDef.density = 1.0f;
+
+        userPoly = world->CreateBody(&polyBodyDef);
+        userPoly->CreateFixture(&polyFixtureDef);
+
+
+    }
+    // Increment the number of clicks
+    // printf("%i\n", num_clicks);
+    num_clicks++;
 }
 
 /*
@@ -286,7 +360,8 @@ void mouse_clicked(int button, int state, int x, int y)
  */
 void mouse_moved(int x, int y)
 {
-
+    // printf("%i\n", x);
+    // printf("%i\n", y);
 }
 
 
@@ -323,6 +398,7 @@ int main(int argc, char **argv)
 
     // Load the first level (i.e. create all Box2D stuff).
     current_level = 0;
+    num_clicks = 0;
     load_world(current_level);
 
     last_time = glutGet(GLUT_ELAPSED_TIME);
